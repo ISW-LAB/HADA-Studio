@@ -1,4 +1,4 @@
-<h1 align="center">Pseudo-Guard Studio</h1>
+<h1 align="center">HADA-Studio</h1>
 
 <p align="center">
   <b>Human–AI object-detection annotation with proposal validation and count-guided acceptance.</b>
@@ -16,17 +16,18 @@
   <img src="docs/figures/overview.png" alt="Workflow overview" width="100%">
 </p>
 
-Label a handful of images. The system trains a detector **and** a separate proposal validator
-from that handful, proposes annotations for everything else, and decides how many to accept per
-image from the object density of the images you already labeled. You review, correct, and the
-corrections feed the next round.
+**HADA-Studio** provides the interactive software environment for the **HADA** annotation workflow.
+Label a handful of images, and it trains a detector **and** a separate proposal validator from
+that handful, proposes annotations for everything else, and determines how many proposals to
+accept per image from the object density observed in the labeled subset. You review and correct
+the proposed annotations, and those corrections inform the next round.
 
 > **The idea in one sentence:** the model that *generates* a box is not the model that *judges*
 > it. A detector run at a permissive threshold is a high-recall proposal generator; an
 > independent crop-level validator scores each proposal; acceptance is a policy over those
 > scores, calibrated to the dataset's own object density rather than to a threshold guessed once.
 
-Across seven public benchmarks this reaches **0.860 mean matched IoU** against 0.49–0.69 for
+Across seven public benchmarks, HADA reaches **0.860 mean matched IoU** against 0.49–0.69 for
 confidence and SSOD baselines, and cuts annotation time from an estimated **6,483 minutes of
 manual work to 934** — an **85.6% reduction** — while a human still reviews one image in ten.
 
@@ -53,8 +54,8 @@ The annotator needs **Python 3.9+ and Pillow**. That is the entire dependency li
 is Python's own `http.server`.
 
 ```bash
-git clone <this-repository> pseudo-guard-studio
-cd pseudo-guard-studio
+git clone <this-repository> hada-studio
+cd hada-studio
 python -m pip install -r requirements.txt
 python run_app.py
 ```
@@ -240,12 +241,12 @@ splits, so only the acceptance rule differs.
 
 ### 1 · Against confidence and SSOD baselines
 
-<p align="center"><img src="docs/figures/results-comparison.png" alt="Pseudo-Guard versus baselines across label budgets" width="100%"></p>
+<p align="center"><img src="docs/figures/results-comparison.png" alt="HADA versus baselines across label budgets" width="100%"></p>
 
 **Pseudo-label localization quality** — mean matched IoU, class-consistent one-to-one matching at
 IoU ≥ 0.5, macro-averaged over the seven datasets:
 
-| Label budget | Conf. (0.5) | Conf. (0.9) | Soft Teacher | LabelMatch | PseCo | Efficient Teacher | **Pseudo-Guard** |
+| Label budget | Conf. (0.5) | Conf. (0.9) | Soft Teacher | LabelMatch | PseCo | Efficient Teacher | **HADA** |
 |:--:|--:|--:|--:|--:|--:|--:|--:|
 | 1% | 0.498 | 0.249 | 0.249 | 0.491 | 0.498 | 0.491 | **0.843** |
 | 5% | 0.718 | 0.613 | 0.612 | 0.718 | 0.716 | 0.716 | **0.856** |
@@ -253,13 +254,13 @@ IoU ≥ 0.5, macro-averaged over the seven datasets:
 | **Overall** | 0.648 | 0.495 | 0.493 | 0.691 | 0.646 | 0.689 | **0.860** |
 
 The gap is widest exactly where it matters: at a **1% budget the nearest baseline reaches 0.498
-and Pseudo-Guard reaches 0.843**. Baselines score 0.000 on several datasets at that budget —
+and HADA reaches 0.843**. Baselines score 0.000 on several datasets at that budget —
 their thresholds accept nothing at all, which is what a fixed cut does when the detector is weak.
 
 **Downstream detection utility** — mAP@50 of a fresh detector trained on each method's output and
 evaluated on a held-out 20% test split:
 
-| Label budget | Conf. (0.5) | Conf. (0.9) | Soft Teacher | LabelMatch | PseCo | Efficient Teacher | **Pseudo-Guard** |
+| Label budget | Conf. (0.5) | Conf. (0.9) | Soft Teacher | LabelMatch | PseCo | Efficient Teacher | **HADA** |
 |:--:|--:|--:|--:|--:|--:|--:|--:|
 | 1% | 0.405 | 0.399 | 0.401 | 0.426 | 0.399 | 0.415 | **0.477** |
 | 5% | 0.597 | 0.551 | 0.551 | 0.585 | 0.587 | 0.575 | **0.637** |
@@ -288,9 +289,9 @@ correcting one image in ten, and HomeObjects-3K **+17.8%** mAP@50 at 20%.
 | Workflow | Total annotation time | vs. human-only |
 |:--|--:|--:|
 | Human-only (11,567 images, 64,984 objects) | 6,482.9 min | — |
-| Pseudo-Guard, AI only | 678.2 min | **−89.5%** |
-| Pseudo-Guard + 10% human correction | 933.5 min | **−85.6%** |
-| Pseudo-Guard + 20% human correction | 1,119.8 min | **−82.7%** |
+| HADA, AI only | 678.2 min | **−89.5%** |
+| HADA-Studio, 10% human review | 933.5 min | **−85.6%** |
+| HADA-Studio, 20% human review | 1,119.8 min | **−82.7%** |
 
 Total workflow time under the 10% label budget: human labeling and correction plus machine
 processing. Almost all of the AI-only cost is the label budget itself — **648.5 min** of hand
@@ -334,7 +335,7 @@ pglabel/          the annotation application — no torch, no web framework
   static/           the single-page UI (index.html + css/ + js/)
 
 pgcount/          count-guided acceptance: seed density → operating point → selection
-pseudoguard/      the algorithm library: detector + validator wrappers, the crop rule
+pseudoguard/      the HADA algorithm library: detector + validator wrappers, the crop rule
 tools/            training entry points, run by the SEPARATE torch interpreter
 packaging/        Windows executable, installer, portable release, build audit
 tests/            202 tests — standard library + Pillow, no test dependencies
@@ -343,7 +344,7 @@ demo/             the sample dataset baked into the installer (read-only once pa
 docs/figures/     the figures used above
 ```
 
-The layering is deliberate: `pseudoguard` produces and scores candidates, `pgcount` decides
+The layering is deliberate: the `pseudoguard` package implements HADA proposal generation and scoring, while `pgcount` decides
 which are accepted, `pglabel` is the human's side of it. Acceptance policy can be changed,
 compared or ablated **without touching a model** — which is what makes "same AI, different
 collaboration" measurable rather than rhetorical.
