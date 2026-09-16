@@ -17,7 +17,9 @@ import sys
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence, Tuple
 
-IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".JPG", ".JPEG", ".PNG")
+# Case-insensitive; kept identical to pglabel/labelio.py and pseudoguard/data/det_loader.py so
+# the app, the tools and the training loader all see exactly the same set of images.
+IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp")
 
 PREPROCESS_MODES = ("none", "clahe", "histeq", "gray", "denoise", "sharpen")
 
@@ -79,7 +81,7 @@ def log(msg: str) -> None:
 # ------------------------------------------------------------------------ labels on disk
 def list_images(images_dir: Path) -> List[str]:
     return sorted(p.name for p in Path(images_dir).iterdir()
-                  if p.is_file() and p.suffix in IMG_EXTS)
+                  if p.is_file() and p.suffix.lower() in IMG_EXTS)
 
 
 def read_boxes(label_path: Path) -> List[Tuple[int, float, float, float, float]]:

@@ -36,13 +36,33 @@ that is not what it is for. It proves the pipeline runs end to end on your machi
 
 ## Bring your own data
 
-The layout is all the app needs:
+Point the app at the folder and it works out the rest:
+
+```bash
+python run_app.py --dataset <your-folder>
+```
+
+Any of these layouts is recognised, so a download does not have to be reshaped first:
 
 ```
-<your-folder>/
-  images/     .jpg .jpeg .png .bmp
-  labels/     <same stem>.txt  — optional; created as you label
+<your-folder>/images/train  +  labels/train      ultralytics split
+<your-folder>/train/images  +  train/labels      roboflow export
+<your-folder>/images        +  labels            flat — what this folder uses
+<your-folder>/images                             no labels yet; the normal start for auto-labeling
 ```
+
+Class names come from `data.yaml` if there is one — all three spellings work:
+
+```yaml
+names: [buffalo, elephant]        names:            names:
+                                    0: buffalo        - buffalo
+                                    1: elephant       - elephant
+```
+
+otherwise from `classes.txt` or `obj.names` (one name per line), and failing that they are sized
+from the class ids that appear in the label files, so the ids at least line up.
+
+Images may be `.jpg .jpeg .png .bmp .tif .tiff .webp`, upper or lower case.
 
 A label row is `class_id cx cy w h`, normalised to `[0, 1]`, one row per box — the YOLO format
 every detection framework reads. You can also start with **no** labels at all and draw the first

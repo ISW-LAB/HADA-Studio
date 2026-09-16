@@ -26,6 +26,9 @@ from pathlib import Path
 
 from . import candidates, paths, state
 from .backend import AIBackend
+from .dataset_detect import describe as describe_dataset
+from .dataset_detect import resolve_class_names
+from .dataset_detect import parse_yaml_class_names          # re-exported: importers predate the move
 from .labelio import list_images, load_yolo, save_yolo
 
 IS_WINDOWS = os.name == "nt"
@@ -171,7 +174,10 @@ def apply_dataset(images, labels, classes_str, ai=None) -> None:
     state.CFG["labels"] = (Path(labels).expanduser().resolve() if labels
                            else default_labels_dir(state.CFG["images"]))
     state.CFG["labels"].mkdir(parents=True, exist_ok=True)
-    state.CFG["classes"] = [c.strip() for c in str(classes_str).split(",") if c.strip()] or ["object"]
+    # None reaches here whenever a caller skipped the CLI's own defaulting (``--classes`` is
+    # optional now). Without this guard str(None) would silently create a class called "None".
+    raw = "" if classes_str is None else str(classes_str)
+    state.CFG["classes"] = [c.strip() for c in raw.split(",") if c.strip()] or ["object"]
     state.CFG["classes"] = load_classes(state.CFG["classes"])
     save_classes()
     if ai is not None:
@@ -259,39 +265,26 @@ def seed_from_ground_truth() -> None:
 
 
 # -------------------------------------------------------------------------- presets
-def parse_yaml_class_names(yaml_path) -> list:
-    """Pull class names out of an ultralytics data.yaml.
-
-    Handles both shapes seen in the wild: the block form (``names:\\n  0: car``) and the inline
-    list (``names: [car, van]``). Parsed with a regex rather than a YAML dependency — this is
-    the app process, which deliberately has no third-party imports beyond Pillow.
-    """
-    try:
-        text = Path(yaml_path).read_text(encoding="utf-8-sig")
-    except Exception:
-        return []
-    m = re.search(r'^\s*names:\s*\[(.*?)\]', text, re.M | re.S)      # inline list
-    if m:
-        return [x.strip().strip('\'"') for x in m.group(1).split(',') if x.strip()]
-    out, in_names = {}, False                                        # block map
-    for line in text.splitlines():
-        if re.match(r'^\s*names:\s*$', line):
-            in_names = True
-            continue
-        if in_names:
-            mm = re.match(r'^\s+(\d+)\s*:\s*(.+?)\s*$', line)
-            if mm:
-                out[int(mm.group(1))] = mm.group(2).strip().strip('\'"')
-            elif line.strip() and not line[0].isspace():
-                break
-    return [out[i] for i in sorted(out)] if out else []
+def _val_images(root: Path, images_dir: Path) -> int:
+    """Size of a validation split, if the dataset happens to have one. Purely informational."""
+    for rel in ("images/val", "val/images", "images/valid", "valid/images"):
+        d = root / rel
+        if d.is_dir() and d.resolve() != images_dir:
+            return len(list_images(d))
+    return 0
 
 
 def list_datasets() -> list:
     """Preset dataset cards for the start screen.
 
-    Each preset gets its OWN workspace labels folder, so switching datasets can never mix one
-    dataset's labels into another's.
+    Layout and class names come from ``dataset_detect``, so a folder does not have to be shaped
+    like an ultralytics split to appear here — ``images/`` + ``classes.txt`` works, and so does a
+    folder of images with no labels at all, which for an auto-labeling tool is the ordinary
+    starting point. A dataset with no labels simply gets no seed: there is no ground truth to
+    seed from, and saying so on the card beats hiding the dataset.
+
+    Each preset still gets its OWN workspace labels folder, so switching datasets can never mix
+    one dataset's labels into another's.
     """
     root = paths.datasets_root()
     workspace = paths.workspace_dir()
@@ -301,20 +294,22 @@ def list_datasets() -> list:
     for d in sorted(root.iterdir()):
         if not d.is_dir():
             continue
-        img, lab = d / "images" / "train", d / "labels" / "train"
-        if not (img.is_dir() and lab.is_dir()):
+        info = describe_dataset(d)
+        if info is None:                                  # no images under any known layout
             continue
-        yamls = sorted(d.glob("*.yaml"))
-        classes = parse_yaml_class_names(yamls[0]) if yamls else []
-        if not classes:
-            continue
-        val = d / "images" / "val"
+        classes = info["classes"] or ["object"]
+        has_seed = bool(info["labels"]) and info["n_labels"] > 0
         out.append({
-            "name": d.name, "images": str(img.resolve()), "seed_labels": str(lab.resolve()),
+            "name": d.name,
+            "images": str(info["images"]),
+            "seed_labels": str(info["labels"]) if has_seed else "",
             "labels": str((workspace / d.name / "labels").resolve()),
-            "classes": ",".join(classes), "num_classes": len(classes), "seed_percent": 5,
-            "train_images": len(list_images(img)),
-            "val_images": len(list_images(val)) if val.is_dir() else 0})
+            "classes": ",".join(classes), "num_classes": len(classes),
+            "seed_percent": 5 if has_seed else 0,
+            "train_images": info["n_images"],
+            "val_images": _val_images(d, info["images"]),
+            # shown as provenance so "class0, class1" never looks like a wrong guess
+            "layout": info["layout"], "class_source": info["class_source"] or "default"})
     return out
 
 
@@ -358,11 +353,47 @@ def run_setup(body):
         state.CFG["seed_gt"], state.CFG["seed_count"], state.CFG["seed_percent"] = None, 0, 0.0
         state.CFG["seed_gt_guard"] = None
 
-    apply_dataset(p, body.get("labels") or None, body.get("classes") or "object")
+    # A user who typed a path rather than clicking a preset has usually not typed class names
+    # either. Rather than silently labeling everything "object", look for the names the dataset
+    # already carries (data.yaml / classes.txt / the class ids in its label files).
+    classes = str(body.get("classes") or "").strip()
+    found_from = ""
+    if not classes:
+        names, found_from = discover_classes(p)
+        if names:
+            classes = ",".join(names)
+    apply_dataset(p, body.get("labels") or None, classes or "object")
     state.CFG["ai"] = AIBackend()                # switching dataset drops the stale model…
     candidates.invalidate()                      # …and its cached predictions with it
     return {"ok": True, "images": n, "classes": state.CFG["classes"],
-            "labels": str(state.CFG["labels"])}, 200
+            "class_source": found_from, "labels": str(state.CFG["labels"])}, 200
+
+
+def discover_classes(images_dir: Path) -> tuple:
+    """Class names for a folder the user typed in, and where they came from.
+
+    The path the user gives is the IMAGES folder, so the dataset root — where data.yaml and
+    classes.txt live — is one or two levels up (``<root>/images`` or ``<root>/images/train``).
+    Both are checked, nearest first, before giving up and returning nothing.
+    """
+    images_dir = Path(images_dir).resolve()
+    roots = [images_dir, images_dir.parent, images_dir.parent.parent]
+    # Pass 1 — a file that NAMES the classes, nearest root first. This has to sweep every level
+    # before any fallback: a roboflow export keeps data.yaml two levels above train/images, and
+    # inferring "class0, class1" from the labels one level up would beat it to the answer.
+    for root in roots:
+        names, src = resolve_class_names(root, None)
+        if names:
+            return names, src
+    # Pass 2 — nothing names them, so size the list from the class ids actually used.
+    for root in roots:
+        try:
+            info = describe_dataset(root)
+        except Exception:
+            continue
+        if info and info["images"] == images_dir and info["classes"]:
+            return info["classes"], info["class_source"]
+    return [], ""
 
 
 def setup_defaults(args) -> dict:

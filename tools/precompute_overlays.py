@@ -69,7 +69,7 @@ def real_overlay(args) -> dict:
                             det_img_size=args.det_img_size,
                             device=resolve_device(args.device)).load()
     img_paths = sorted(p for p in Path(args.images).iterdir()
-                       if p.is_file() and p.suffix in IMG_EXTS)
+                       if p.is_file() and p.suffix.lower() in IMG_EXTS)
     overlay: dict[str, list[dict]] = {}
     for img_path in img_paths:
         img_id = img_path.name

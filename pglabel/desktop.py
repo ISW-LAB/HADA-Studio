@@ -208,6 +208,46 @@ def _print_banner(url: str, log: Path) -> None:
     print(line, flush=True)
 
 
+def resolve_dataset_args(args) -> int:
+    """Turn ``--dataset <root>`` into the --images / --labels / --classes the rest of the app uses.
+
+    Filling these in here rather than deeper down keeps one rule: everything after this point sees
+    a plain images folder and a class list, no matter which flag the user reached for. Explicit
+    flags always win — ``--dataset`` only supplies what was not given.
+
+    Returns a process exit code, or 0 to carry on.
+    """
+    from . import dataset_detect
+
+    if args.dataset is not None:
+        root = Path(args.dataset).expanduser()
+        info = dataset_detect.describe(root)
+        if info is None:
+            print(f"[pg-label] --dataset has no images under any known layout: {root}\n"
+                  f"           expected one of images/train, train/images, images/, "
+                  f"or images directly in the folder", file=sys.stderr)
+            return 2
+        if args.images is None:
+            args.images = info["images"]
+        if args.labels is None and info["labels"]:
+            args.labels = info["labels"]
+        if args.classes is None and info["classes"]:
+            args.classes = ",".join(info["classes"])
+        print(f"[pg-label] dataset {root.name}: {info['n_images']} images ({info['layout']}), "
+              f"classes from {info['class_source'] or 'default'}")
+    elif args.images is not None and args.classes is None:
+        # No --dataset, but a bare --images: the names are usually sitting next to it.
+        from .dataset_setup import discover_classes
+        names, src = discover_classes(Path(args.images).expanduser())
+        if names:
+            args.classes = ",".join(names)
+            print(f"[pg-label] classes from {src}: {args.classes}")
+
+    if args.classes is None:
+        args.classes = "object"
+    return 0
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     console.enable()            # before ANY print: a redirected stdout is code-page limited
@@ -246,6 +286,10 @@ def main(argv=None) -> int:
                                help="list the interpreters the training pack could be built from")
     args = parser.parse_args(argv)
     apply_settings(args, argv)
+
+    rc = resolve_dataset_args(args)
+    if rc:
+        return rc
 
     if args.images is not None and not Path(args.images).is_dir():
         print(f"[pg-label] --images folder not found: {args.images}", file=sys.stderr)

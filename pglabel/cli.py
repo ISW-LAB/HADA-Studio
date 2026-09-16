@@ -32,11 +32,16 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     dataset = ap.add_argument_group("dataset")
+    dataset.add_argument("--dataset", type=Path, default=None,
+                         help="dataset ROOT — images, labels and class names are detected from it "
+                              "(images/train, train/images or images/, plus data.yaml or classes.txt)")
     dataset.add_argument("--images", type=Path, default=None,
                          help="images folder (omit to pick one on the browser setup screen)")
     dataset.add_argument("--labels", type=Path, default=None,
                          help="labels folder (default: beside the images, or the workspace)")
-    dataset.add_argument("--classes", default="object", help="comma-separated class names")
+    dataset.add_argument("--classes", default=None,
+                         help="comma-separated class names (default: read from the dataset, "
+                              "else a single class named 'object')")
     dataset.add_argument("--default-images", type=Path, default=None,
                          help="pre-fill the setup screen with this images folder")
     dataset.add_argument("--default-labels", type=Path, default=None)

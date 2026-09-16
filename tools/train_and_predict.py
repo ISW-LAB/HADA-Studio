@@ -265,7 +265,10 @@ def train_class_head(args, report, val_root):
     vimg, vlab = val_root / "images" / "train", val_root / "labels" / "train"
     paths_, labels_, k = [], [], 0
     for lp in sorted(vlab.glob("*.txt")):
-        ip = next((vimg / f"{lp.stem}{e}" for e in IMG_EXTS if (vimg / f"{lp.stem}{e}").exists()), None)
+        # IMG_EXTS is lower-case, but a dataset can perfectly well ship IMG_0001.JPG next to its
+        # labels, so try both spellings of each extension.
+        spellings = [s for e in IMG_EXTS for s in (e, e.upper())]
+        ip = next((vimg / f"{lp.stem}{e}" for e in spellings if (vimg / f"{lp.stem}{e}").exists()), None)
         boxes = common.read_boxes(lp)
         if not ip or not boxes:
             continue

@@ -7,7 +7,7 @@
 <p align="center">
   <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-blue">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-green">
-  <img alt="Tests 202 passing" src="https://img.shields.io/badge/tests-202%20passing-brightgreen">
+  <img alt="Tests 224 passing" src="https://img.shields.io/badge/tests-224%20passing-brightgreen">
   <img alt="App deps" src="https://img.shields.io/badge/app%20dependencies-Pillow%20only-lightgrey">
   <img alt="CPU ok" src="https://img.shields.io/badge/GPU-optional%20(CPU%20fallback)-orange">
 </p>
@@ -107,7 +107,10 @@ takes about 35 seconds on a CPU.
 <summary><b>More ways to start</b></summary>
 
 ```bash
-# your own images
+# a dataset folder — images, labels and class names are detected from it
+python run_app.py --dataset ./data
+
+# your own images (class names are read from the dataset if you omit --classes)
 python run_app.py --images ./data/images --classes cell,rbc,wbc
 
 # seed the first 5 images per class from ground truth (reproducible random draw)
@@ -122,6 +125,20 @@ python run_app.py --where
 ```
 
 `python -m pglabel` is equivalent to `run_app.py`.
+
+**Dataset layouts that are detected.** `--dataset` (and the start-screen preset cards) accept any
+of these, so an export does not have to be reshaped first:
+
+| layout | example |
+|---|---|
+| ultralytics split | `images/train` + `labels/train` |
+| roboflow export | `train/images` + `train/labels` |
+| flat | `images/` + `labels/` |
+| images only | `images/` — the normal starting point for auto-labeling |
+
+Class names are taken from `data.yaml` (inline list, `0: name` map, or `- name` list), else
+`classes.txt` / `obj.names`, else sized from the class ids present in the label files. Images may
+be `.jpg .jpeg .png .bmp .tif .tiff .webp` in any capitalisation.
 
 </details>
 
@@ -338,7 +355,7 @@ pgcount/          count-guided acceptance: seed density → operating point → 
 pseudoguard/      the HADA algorithm library: detector + validator wrappers, the crop rule
 tools/            training entry points, run by the SEPARATE torch interpreter
 packaging/        Windows executable, installer, portable release, build audit
-tests/            202 tests — standard library + Pillow, no test dependencies
+tests/            224 tests — standard library + Pillow, no test dependencies
 data/             a runnable working dataset — 10 images, 4 labeled  [data/README.md]
 demo/             the sample dataset baked into the installer (read-only once packaged)
 docs/figures/     the figures used above

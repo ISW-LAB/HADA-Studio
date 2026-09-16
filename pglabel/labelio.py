@@ -11,13 +11,24 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional
 
-IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".JPG", ".JPEG", ".PNG")
+# Matched case-INSENSITIVELY, and kept in step with pseudoguard/data/det_loader.py. Listing only a
+# few hand-written upper-case spellings used to hide a ``.Jpg`` or ``.TIF`` from the app while the
+# training loader still picked it up — the same dataset then had two different sizes depending on
+# which half of the tool was looking at it.
+IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp")
+
+
+def is_image(path: Path) -> bool:
+    """Does this file look like an image we can label?"""
+    return Path(path).suffix.lower() in IMG_EXTS
 
 
 def list_images(images_dir: Path) -> List[str]:
     """File names (not paths) of every image in ``images_dir``, sorted for a stable UI order."""
-    return sorted(p.name for p in Path(images_dir).iterdir()
-                  if p.is_file() and p.suffix in IMG_EXTS)
+    d = Path(images_dir)
+    if not d.is_dir():
+        return []
+    return sorted(p.name for p in d.iterdir() if p.is_file() and is_image(p))
 
 
 def load_yolo(labels_dir: Path, stem: str) -> List[dict]:
