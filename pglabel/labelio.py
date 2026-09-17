@@ -11,7 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional
 
-# Matched case-INSENSITIVELY, and kept in step with pseudoguard/data/det_loader.py. Listing only a
+# Matched case-INSENSITIVELY, and kept in step with hada/data/det_loader.py. Listing only a
 # few hand-written upper-case spellings used to hide a ``.Jpg`` or ``.TIF`` from the app while the
 # training loader still picked it up — the same dataset then had two different sizes depending on
 # which half of the tool was looking at it.

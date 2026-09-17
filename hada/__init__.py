@@ -1,4 +1,4 @@
-"""Pseudo-Guard — the frozen algorithm library behind the annotation workflow.
+"""HADA — the frozen algorithm library behind the annotation workflow.
 
 Four pieces, in the order a training run uses them:
 
@@ -9,8 +9,8 @@ Four pieces, in the order a training run uses them:
     models.classification DenseNet wrapper (proposal validator)
 
 Importing this package does NOT import torch: the sub-modules that need it import it
-themselves, so the label-only application can depend on ``pseudoguard.config`` and
-``pseudoguard.device`` without pulling in a 2 GB stack.
+themselves, so the label-only application can depend on ``hada.config`` and
+``hada.device`` without pulling in a 2 GB stack.
 """
 
 from .config import (

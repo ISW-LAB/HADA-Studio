@@ -5,8 +5,8 @@ import random
 import unittest
 
 from support import requires_torch                                  # noqa: E402
-from pseudoguard import device                                       # noqa: E402
-from pseudoguard.config import SHIFT_BAND, NoiseGenerationConfig     # noqa: E402
+from hada import device                                       # noqa: E402
+from hada.config import SHIFT_BAND, NoiseGenerationConfig     # noqa: E402
 
 
 class TestConfig(unittest.TestCase):
@@ -73,7 +73,7 @@ class TestNoiseGenerator(unittest.TestCase):
         self.gt = torch.tensor([[200.0, 150.0, 300.0, 250.0]])       # one 100x100 box
 
     def _generator(self, **kw):
-        from pseudoguard.data.noise_generator import NoiseGenerator
+        from hada.data.noise_generator import NoiseGenerator
         return NoiseGenerator(NoiseGenerationConfig(**kw), device="cpu")
 
     def _shift_fractions(self, generator, n=200):
@@ -102,7 +102,7 @@ class TestNoiseGenerator(unittest.TestCase):
         self.assertGreater(sum(baseline) / len(baseline), sum(refined) / len(refined))
 
     def test_empty_boxes_avoid_the_annotated_object(self):
-        from pseudoguard.utils.box_ops import box_iou
+        from hada.utils.box_ops import box_iou
         import torch
         generator = self._generator(negative_rule="refined")
         boxes = generator._collect_empty_boxes(self.img, self.gt, 50)

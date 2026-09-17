@@ -230,7 +230,7 @@ def _post_deviation_preview(req, _suffix=None):
 def _post_automate_all(req, _suffix=None):
     if not state.ai_available():
         return req.json({"detail": "no AI backend (manual mode)"}, 400)
-    req.json(candidates.automate_all(req.body.get("method", "pseudoguard"),
+    req.json(candidates.automate_all(req.body.get("method", "hada"),
                                      thr=req.body.get("thr"),
                                      score=req.body.get("score", "p_good")))
 
@@ -240,7 +240,7 @@ def _post_automate(req, name):
         return req.json({"detail": "not found"}, 404)
     if not state.ai_available():
         return req.json({"detail": "no AI backend (manual mode)"}, 400)
-    req.json(candidates.automate_image(name, req.body.get("method", "pseudoguard")))
+    req.json(candidates.automate_image(name, req.body.get("method", "hada")))
 
 
 # ------------------------------------------------------------------------ route tables

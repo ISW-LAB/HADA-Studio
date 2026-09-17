@@ -65,9 +65,9 @@ class TestFrozenPaths(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp(prefix="frozen-"))
         self.install = self.tmp / "PG-Label"           # the folder holding the executable
         self.bundle = self.install / "_internal"       # PyInstaller's _MEIPASS for onedir
-        for rel in ("pglabel/static", "tools", "pgcount", "pseudoguard", "demo/images"):
+        for rel in ("pglabel/static", "tools", "pgcount", "hada", "demo/images"):
             (self.bundle / rel).mkdir(parents=True, exist_ok=True)
-        (self.bundle / "pseudoguard" / "__init__.py").write_text("")
+        (self.bundle / "hada" / "__init__.py").write_text("")
         (self.bundle / "pglabel" / "static" / "index.html").write_text("<html></html>")
         (self.install / "PG-Label.exe").write_text("")
         self.data = self.tmp / "userdata"

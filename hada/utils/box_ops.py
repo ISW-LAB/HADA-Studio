@@ -199,7 +199,7 @@ def compute_batch_pseudo_accuracy(
               'total_matched', 'total_gt', 'total_pseudo'
     """
     from pathlib import Path
-    from pseudoguard.data.det_loader import _image_to_label_path, _read_yolo_label_file
+    from hada.data.det_loader import _image_to_label_path, _read_yolo_label_file
 
     # Build image_path -> pseudo_label dict for fast lookup
     pseudo_by_image = {}

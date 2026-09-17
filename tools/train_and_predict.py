@@ -2,7 +2,7 @@
 """Few-label seed → TRAIN (detector + validator) → PREDICT over every image → report.
 
 This is what the app's Train button runs, and it is also usable on its own from a terminal.
-Nothing is re-implemented here: it wires up the ``pseudoguard`` library in the order the method
+Nothing is re-implemented here: it wires up the ``hada`` library in the order the method
 prescribes.
 
     seed images + boxes
@@ -114,8 +114,8 @@ def split_seed(seed, val_frac: float, rng_seed: int, class_aware: bool):
 def train_detector(args, report, all_imgs):
     """Stage 1 — the proposal generator. Returns (seed items, validator dataset root)."""
     import torch
-    from pseudoguard.data.det_loader import DetDatasetSpec, build_dataset
-    from pseudoguard.models.detection.yolov8_wrapper import YOLOWrapper
+    from hada.data.det_loader import DetDatasetSpec, build_dataset
+    from hada.models.detection.yolov8_wrapper import YOLOWrapper
 
     seed, scope_note = common.seed_images(args.images, args.labels, args.train_scope)
     if not seed:
@@ -182,9 +182,9 @@ def train_detector(args, report, all_imgs):
 
 def train_validator(args, report, val_root):
     """Stage 2 — the proposal validator, from approved crops or freshly generated ones."""
-    from pseudoguard.data.classification_dataset import create_train_val_split_from_folder
-    from pseudoguard.data.det_loader import DetDatasetSpec, build_dataset
-    from pseudoguard.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
+    from hada.data.classification_dataset import create_train_val_split_from_folder
+    from hada.data.det_loader import DetDatasetSpec, build_dataset
+    from hada.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
 
     samples = args.work_dir / "clf_samples"
     owns_samples = True
@@ -195,7 +195,7 @@ def train_validator(args, report, val_root):
         n_neg = len(list((samples / "clf_train_no").glob("*.jpg")))
         log(f"[validator] using approved crops from {samples.name} (good={n_pos} noise={n_neg})")
     else:
-        from pseudoguard.data.noise_generator import NoiseGenerator
+        from hada.data.noise_generator import NoiseGenerator
         log("[validator] generating rule-based crops (GT=good, empty+deviated=noise) …")
         noise_cfg = common.build_noise_config(args.noise_config)
         spec = DetDatasetSpec(name="fewlabel_val", root=val_root, yaml_path=None, data={})
@@ -252,8 +252,8 @@ def train_class_head(args, report, val_root):
     """
     import random as rnd
     from PIL import Image
-    from pseudoguard.data.classification_dataset import CropFolderClassificationDataset
-    from pseudoguard.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
+    from hada.data.classification_dataset import CropFolderClassificationDataset
+    from hada.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
 
     report["species"] = None
     if args.det_mode != "classify":
@@ -355,7 +355,7 @@ def predict_overlay(args, report, det_ckpt, val_ckpt, class_ckpt, n_classes, all
 
     class_model = None
     if class_ckpt is not None and Path(class_ckpt).exists():
-        from pseudoguard.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
+        from hada.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
         class_model = TorchvisionClassifierWrapper(model_type="densenet121", img_size=256,
                                                    num_classes=n_classes, pretrained=False,
                                                    device=args.device)
@@ -417,7 +417,7 @@ def main(argv=None) -> int:
         common.bootstrap_path()
         args.device = common.resolve_device(args.device)
         report["device"] = args.device
-        from pseudoguard.device import describe as describe_device
+        from hada.device import describe as describe_device
         log(f"[device] {describe_device(args.device)}")
 
         all_imgs = common.list_images(args.images)

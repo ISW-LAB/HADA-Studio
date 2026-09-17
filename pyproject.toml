@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pseudoguard-studio"
+name = "hada-studio"
 version = "1.0.0"
 description = "Human-AI object-detection annotation with proposal validation and count-guided acceptance"
 readme = "README.md"
@@ -20,9 +20,9 @@ dev = ["pytest>=7.4"]
 pglabel = "pglabel.desktop:main"
 
 [tool.setuptools]
-packages = ["pglabel", "pgcount", "pgcount.adapters", "pseudoguard", "pseudoguard.data",
-            "pseudoguard.models", "pseudoguard.models.detection",
-            "pseudoguard.models.classification", "pseudoguard.utils", "tools"]
+packages = ["pglabel", "pgcount", "pgcount.adapters", "hada", "hada.data",
+            "hada.models", "hada.models.detection",
+            "hada.models.classification", "hada.utils", "tools"]
 
 [tool.setuptools.package-data]
 pglabel = ["static/*.html", "static/css/*.css", "static/js/*.js"]

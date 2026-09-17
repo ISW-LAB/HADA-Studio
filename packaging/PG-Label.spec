@@ -18,12 +18,12 @@ WHAT SHIPS AS PLAIN FILES NEXT TO THE EXE (datas, not frozen bytecode)
     pglabel/static/     the UI, read at request time
     tools/*.py          handed to the training interpreter as file paths — must stay .py
     pgcount/*.py        imported by those tools under that other interpreter, which cannot see
-    pseudoguard/*.py    the frozen copies inside the exe
+    hada/*.py    the frozen copies inside the exe
     demo/               optional sample dataset (PGLABEL_WITH_DEMO=0 to omit)
 
 BUILD SWITCHES (set by build.py as environment variables)
     PGLABEL_WITH_DEMO=1      bundle demo/images + demo/gt_labels (~2 MB) — first-run sample data
-    PGLABEL_WITH_TRAINING=1  bundle tools/ + pseudoguard/, which is what makes Train available
+    PGLABEL_WITH_TRAINING=1  bundle tools/ + hada/, which is what makes Train available
     PGLABEL_CONSOLE=0        windowed build (no console; output goes to the log file only)
 """
 
@@ -87,7 +87,7 @@ if WITH_TRAINING:
     # The trainer runs under ANOTHER interpreter, so these must be readable .py files beside the
     # exe. Freezing them would make them invisible to that interpreter.
     datas += tree(ROOT / "tools", "tools", patterns=("*.py",))
-    datas += tree(ROOT / "pseudoguard", "pseudoguard", patterns=("*.py",))
+    datas += tree(ROOT / "hada", "hada", patterns=("*.py",))
 if WITH_DEMO:
     # Images only — a .txt sitting beside them would be one past session's output, and shipping
     # it would make the first run look like the user had already labeled everything.

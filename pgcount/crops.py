@@ -1,7 +1,7 @@
 """Crop extraction utility.
 
 Mirrors the exact cropping logic used by the reused validator
-(the validator's own crop path in ``pseudoguard``) so the crops
+(the validator's own crop path in ``hada``) so the crops
 the app scores are identical to the crops the DenseNet validator was trained/eval'd
 on: same clamping, same invalid-box skipping, same PIL ``.crop((x1,y1,x2,y2))``.
 

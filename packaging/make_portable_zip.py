@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""Assemble pseudo-guard-studio.zip — the "unzip on Windows and run it" release.
+r"""Assemble hada-studio.zip — the "unzip on Windows and run it" release.
 
 WHY THIS EXISTS ALONGSIDE build.py
     build.py freezes the app with PyInstaller, which only works ON Windows. This builds the same
@@ -56,7 +56,7 @@ console.enable()
 PY_VERSION = "3.12.10"
 PY_ABI = "cp312"
 PY_EMBED_URL = f"https://www.python.org/ftp/python/{PY_VERSION}/python-{PY_VERSION}-embed-amd64.zip"
-RELEASE_NAME = "pseudo-guard-studio"
+RELEASE_NAME = "hada-studio"
 
 
 def say(msg: str) -> None:
@@ -239,7 +239,7 @@ def build(args) -> Path:
     # 3 — the algorithm library + trainers, so the Train button exists after install
     if not args.no_training:
         say("copying the algorithm library and training tools")
-        copy_tree(ROOT / "pseudoguard", stage / "pseudoguard", patterns=("*.py",))
+        copy_tree(ROOT / "hada", stage / "hada", patterns=("*.py",))
         copy_tree(ROOT / "tools", stage / "tools", patterns=("*.py",))
 
     # 4 — the sample dataset
@@ -299,8 +299,8 @@ REQUIRED_IN_RELEASE = [
     "runtime/python.exe",
 ]
 REQUIRED_FOR_TRAINING = [
-    "pseudoguard/__init__.py", "pseudoguard/config.py", "pseudoguard/data/noise_generator.py",
-    "pseudoguard/models/detection/yolov8_wrapper.py",
+    "hada/__init__.py", "hada/config.py", "hada/data/noise_generator.py",
+    "hada/models/detection/yolov8_wrapper.py",
     "tools/train_and_predict.py", "tools/gen_noise_crops.py", "tools/common.py",
 ]
 
@@ -317,7 +317,7 @@ def verify_stage(stage: Path, with_training: bool) -> None:
 
 
 def readme_first() -> str:
-    return f"""PG-Label (Pseudo-Guard Studio) {paths.APP_VERSION}
+    return f"""PG-Label (HADA Studio) {paths.APP_VERSION}
 ==================================================================
 
 1. Keep this folder unzipped and run "Install PG-Label.exe".
@@ -339,7 +339,7 @@ What is inside
 runtime\\                Python {PY_VERSION} (official python.org embeddable build) + Pillow
 pglabel\\                the annotation application
 pgcount\\                count-guided acceptance
-pseudoguard\\, tools\\    the algorithm library and the training entry points
+hada\\, tools\\    the algorithm library and the training entry points
 demo\\                   sample images with ground truth
 *.exe                   launcher stubs from distlib (the same ones pip uses)
 
@@ -353,7 +353,7 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=None, help="folder to write the .zip into (default: repo root)")
     ap.add_argument("--no-demo", action="store_true", help="omit the sample dataset")
     ap.add_argument("--no-training", action="store_true",
-                    help="omit pseudoguard/ and tools/ (label-only release)")
+                    help="omit hada/ and tools/ (label-only release)")
     ap.add_argument("--keep-tree", action="store_true", help="keep the staged tree for inspection")
     args = ap.parse_args(argv)
     t0 = time.time()

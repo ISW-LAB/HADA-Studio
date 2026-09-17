@@ -32,9 +32,9 @@ class TestSpec(unittest.TestCase):
             self.assertIn(name, self.spec)
 
     def test_the_trainer_ships_as_readable_py_files(self):
-        # tools/ and pseudoguard/ must be datas, not frozen: another interpreter reads them.
+        # tools/ and hada/ must be datas, not frozen: another interpreter reads them.
         self.assertIn('tree(ROOT / "tools", "tools", patterns=("*.py",))', self.spec)
-        self.assertIn('tree(ROOT / "pseudoguard", "pseudoguard", patterns=("*.py",))', self.spec)
+        self.assertIn('tree(ROOT / "hada", "hada", patterns=("*.py",))', self.spec)
 
     def test_the_entry_point_exists(self):
         self.assertIn('ROOT / "run_app.py"', self.spec)
@@ -86,7 +86,7 @@ class TestPortableRelease(unittest.TestCase):
     def test_the_release_manifest_names_the_ui_assets(self):
         required = self.mpz.REQUIRED_IN_RELEASE + self.mpz.REQUIRED_FOR_TRAINING
         for rel in ("pglabel/static/css/app.css", "pglabel/static/js/app.js",
-                    "tools/train_and_predict.py", "pseudoguard/config.py"):
+                    "tools/train_and_predict.py", "hada/config.py"):
             self.assertIn(rel, required)
 
     def test_verify_stage_refuses_an_incomplete_tree(self):
@@ -113,7 +113,7 @@ class TestPortableRelease(unittest.TestCase):
 
 class TestRepoLayout(unittest.TestCase):
     def test_the_repository_is_self_contained(self):
-        for pkg in ("pglabel", "pgcount", "pseudoguard", "tools"):
+        for pkg in ("pglabel", "pgcount", "hada", "tools"):
             self.assertTrue((ROOT / pkg / "__init__.py").exists(), pkg)
 
     def test_no_module_points_at_the_old_research_checkout(self):

@@ -41,16 +41,16 @@ REQUIRED_DATA = [
     "tools/common.py",
     "pgcount/__init__.py",
     "pgcount/backend.py",
-    "pseudoguard/__init__.py",
-    "pseudoguard/config.py",
-    "pseudoguard/data/noise_generator.py",
-    "pseudoguard/models/detection/yolov8_wrapper.py",
-    "pseudoguard/models/classification/densenet_wrapper.py",
+    "hada/__init__.py",
+    "hada/config.py",
+    "hada/data/noise_generator.py",
+    "hada/models/detection/yolov8_wrapper.py",
+    "hada/models/classification/densenet_wrapper.py",
 ]
 
 # What the spec ships NEXT TO the exe as plain .py, and therefore all the training interpreter
 # can import. tools/ reaching outside this set is the classic "works from source" packaging bug.
-TRAINER_VISIBLE = {"pseudoguard", "pgcount", "tools"}
+TRAINER_VISIBLE = {"hada", "pgcount", "tools"}
 
 # Everything the Windows build and release routes need. A missing one of these is only noticed
 # when somebody tries to cut a release, which is the worst moment to find out.

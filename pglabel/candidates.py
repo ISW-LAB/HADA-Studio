@@ -208,7 +208,7 @@ def _band(score: float) -> str:
     return "green" if score >= 0.65 else ("amber" if score >= 0.35 else "red")
 
 
-def automate_image(name: str, method: str = "pseudoguard") -> dict:
+def automate_image(name: str, method: str = "hada") -> dict:
     """Pre-labels for ONE image, without saving.
 
     The operating point is fit on the SAME full target pool that Auto-label ALL uses, then only
@@ -236,7 +236,7 @@ def automate_image(name: str, method: str = "pseudoguard") -> dict:
             "seed_images": len(seed), "seed_median": stats.median_count}
 
 
-def automate_all(method: str = "pseudoguard", thr=None, score: str = "p_good",
+def automate_all(method: str = "hada", thr=None, score: str = "p_good",
                  fold_gate=None) -> dict:
     """Auto-label every non-seed image with the chosen methodology and SAVE the result.
 

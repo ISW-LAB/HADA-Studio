@@ -1,6 +1,6 @@
 """Configuration for count-guided auto-labeling.
 
-Mirrors the relevant knobs of the algorithm library (``pseudoguard/config.py``)
+Mirrors the relevant knobs of the algorithm library (``hada/config.py``)
 so the scaffold stays consistent with the frozen backend:
 
     pseudo_conf_threshold = 0.05   # detector collects candidates broadly (high recall)
@@ -31,7 +31,7 @@ class OperatingPointStrategy(str, Enum):
 class Backend(str, Enum):
     """Which per-candidate score drives selection (design §3.1, Tier-1 fixes to validator)."""
 
-    #: Pseudo-Guard detector-decoupled crop validator, P(good) = probs[:, 1]. (Tier-1 default)
+    #: HADA detector-decoupled crop validator, P(good) = probs[:, 1]. (Tier-1 default)
     VALIDATOR = "validator"
     #: Raw detector confidence. (Tier-2 comparison — isolates the value of decoupling.)
     CONFIDENCE = "confidence"
@@ -53,7 +53,7 @@ class CountGuidedConfig:
     strategy: OperatingPointStrategy = OperatingPointStrategy.PER_IMAGE_TOPK
     backend: Backend = Backend.VALIDATOR
 
-    # --- mirrors of pseudoguard/config.py (keep the two in sync) ---
+    # --- mirrors of hada/config.py (keep the two in sync) ---
     pseudo_conf_threshold: float = 0.05   # detector candidate-collection threshold
     fixed_filter_threshold: float = 0.5   # the C2 "auto + fixed-conf" arm operating point
     crop_img_size: int = 256              # validator crop size (classification.img_size)

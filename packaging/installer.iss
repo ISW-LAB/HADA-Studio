@@ -8,7 +8,7 @@
 ; the user's own profile. That matters on managed lab machines where annotators are not admins.
 
 #define MyAppName "PG-Label"
-#define MyAppPublisher "Pseudo-Guard Studio"
+#define MyAppPublisher "HADA Studio"
 #define MyAppExeName "PG-Label.exe"
 
 #ifndef MyAppVersion

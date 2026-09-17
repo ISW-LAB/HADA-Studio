@@ -9,7 +9,7 @@ manufactures from ground truth, so it can be initialised before any detector exi
     deviated   ground-truth boxes displaced off their object   -> label 0 (noise)
 
 ``NoiseGenerationConfig.negative_rule`` selects how the two negative types are drawn; see
-``pseudoguard.config`` for what "baseline" and "refined" mean geometrically. The public entry
+``hada.config`` for what "baseline" and "refined" mean geometrically. The public entry
 point is ``NoiseGenerator.generate_training_crops``; ``empty_boxes``/``deviated_boxes`` expose
 the same geometry without cropping, which is what the app's review screen previews.
 """
@@ -25,7 +25,7 @@ import math
 
 logger = logging.getLogger(__name__)
 
-from pseudoguard.utils.box_ops import (
+from hada.utils.box_ops import (
     box_iou,
     boxes_have_overlap,
     generate_random_box,
@@ -34,16 +34,16 @@ from pseudoguard.utils.box_ops import (
     xyxy_to_cxcywh,
     cxcywh_to_xyxy
 )
-from pseudoguard.data.det_loader import YoloDetDataset
-from pseudoguard.config import NoiseGenerationConfig
-from pseudoguard.device import resolve as resolve_device
+from hada.data.det_loader import YoloDetDataset
+from hada.config import NoiseGenerationConfig
+from hada.device import resolve as resolve_device
 
 
 def _pick_crop_device(preferred: str = None) -> torch.device:
     """Device for the GPU-batched crop path, with a CPU fallback that always holds.
 
     ``torch.device("cuda:0")`` constructs fine on a machine with no GPU and only fails later,
-    inside roi_align — so the request is resolved through ``pseudoguard.device`` first.
+    inside roi_align — so the request is resolved through ``hada.device`` first.
     """
     return torch.device(resolve_device(preferred))
 

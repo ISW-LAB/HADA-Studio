@@ -26,7 +26,7 @@ from .labelio import list_images
 
 # ---- open dataset + training settings (populated by cli.configure and run_setup) -----------
 CFG = {"images": None, "labels": None, "classes": ["object"], "ai": None,
-       "train_env": "pseudoguard", "train_python": None, "train_device": "auto",
+       "train_env": "hada", "train_python": None, "train_device": "auto",
        "det_epochs": 100, "det_size": "n", "det_model_type": "yolov8", "val_epochs": 6,
        "research_root": None, "can_train": False}
 

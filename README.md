@@ -162,10 +162,10 @@ flowchart TB
 
 | Step | What happens | Where |
 |---|---|---|
-| **1 · Propose** | The detector runs at a deliberately permissive threshold (0.05, lowered further per image until something is found). Recall first — precision is somebody else's job. | `pseudoguard/models/detection` |
-| **2 · Validate** | A DenseNet-121 scores each proposal *crop* for P(good), independently of the detector's own confidence. | `pseudoguard/models/classification` |
+| **1 · Propose** | The detector runs at a deliberately permissive threshold (0.05, lowered further per image until something is found). Recall first — precision is somebody else's job. | `hada/models/detection` |
+| **2 · Validate** | A DenseNet-121 scores each proposal *crop* for P(good), independently of the detector's own confidence. | `hada/models/classification` |
 | **3 · Accept** | The box count in your labeled images sets a per-image K (or a global threshold), so acceptance matches how crowded this dataset actually is. | `pgcount/operating_point.py` |
-| **4 · Correct** | You accept, adjust, relabel, delete or add. Each correction type is kept as a distinct signal and folded into the next round. | `pglabel/` |
+| **4 · Correct** | Five structured actions — *Accept*, *Adjust*, *Relabel*, *Delete*, *Add*. Each is kept as a distinct signal and folded into the next round, so a correction adapts the models rather than only fixing one image. | `pglabel/` |
 
 ### The validator is trained on fabricated crops
 
@@ -234,7 +234,7 @@ recorded as distinct feedback, not as one undifferentiated "edit".
 ## 📊 Results
 
 **Setup.** Seven public benchmarks, YOLOv8-n detector, DenseNet-121 validator, three annotation
-rounds, label budgets of 1% / 5% / 10%. Every method sees the *same* candidate pool and the same
+rounds (R1–R3), label budgets of 1% / 5% / 10%. Every method sees the *same* candidate pool and the same
 splits, so only the acceptance rule differs.
 
 > **What this repository contains, and what it does not.** This is the *software* — the
@@ -256,7 +256,39 @@ splits, so only the acceptance rule differs.
 | Medical-Pills | Pharmaceutical | 1 | 92 | 17.64 |
 | **Total** | | | **11,567** | **64,984 objects** |
 
-### 1 · Against confidence and SSOD baselines
+### 1 · What the noise actually looks like
+
+Before any table: the two failure modes a fixed confidence cut produces, on the 1% budget where
+the detector is weakest. **Black** boxes agree with the reference annotation, **red** boxes do not.
+
+<p align="center"><img src="docs/figures/results-noise-qualitative.png" alt="Pseudo-label noise across five datasets under confidence-only selection and HADA" width="100%"></p>
+
+A restrictive threshold — Conf. (0.9) — keeps fewer proposals but never asks whether a
+high-confidence crop is a *whole* object in the *right place*, so partial objects and background
+boxes survive it. A permissive one — Conf. (0.5) — keeps far more, and with it the duplicates,
+oversized and mislocalized boxes. Both are worst where the target is small relative to the frame:
+Brain-Tumor and Signature. HADA changes the acceptance mechanism rather than the threshold — every
+candidate is judged by the independent crop-level validator, then containment-based suppression
+drops spatial duplicates. The leftover error on HomeObjects-3K is the honest part of the picture:
+validation *reduces* annotation noise, it does not eliminate it.
+
+<p align="center"><img src="docs/figures/results-noise-persistence.png" alt="How pseudo-label errors persist across three model updates" width="100%"></p>
+
+The same three images, tracked across three model updates, show why the threshold is not the thing
+to tune. Under confidence-only selection the errors do not wash out — in the Brain-Tumor example
+overlapping boxes spread until they form a grid across the whole frame by R3, and the Signature
+example ends up covered in boxes scattered over the document text. Once a wrong box is in the
+pseudo-label set, the next round trains on it and predictions compatible with it come back. Because
+detector confidence drives both proposal generation *and* acceptance, moving the threshold adds no
+independent check on that loop.
+
+HADA stays at no more than two boxes per image. It is not error-free in the early rounds — a
+background box and a missed tumor in R1, a displaced signature box in R1, a partial rhino in R2 —
+but none of them survives into the following round, and all three examples agree with the reference
+by R3. The validator works class-agnostically, so what this demonstrates is filtering of
+*objectness, localization and duplicate* errors; getting the category right remains the human's job.
+
+### 2 · Against confidence and SSOD baselines
 
 <p align="center"><img src="docs/figures/results-comparison.png" alt="HADA versus baselines across label budgets" width="100%"></p>
 
@@ -284,7 +316,23 @@ evaluated on a held-out 20% test split:
 | 10% | 0.650 | 0.637 | 0.645 | 0.639 | 0.645 | 0.650 | **0.687** |
 | **Overall** | 0.551 | 0.529 | 0.532 | 0.550 | 0.544 | 0.547 | **0.601** |
 
-### 2 · Partial human correction pays for itself
+**The same, with the class labels removed** — mAP@50 under class-agnostic evaluation, which scores
+a box on whether it found an object in the right place and ignores which category it was given:
+
+| Label budget | Conf. (0.5) | Conf. (0.9) | Soft Teacher | LabelMatch | PseCo | Efficient Teacher | **HADA** |
+|:--:|--:|--:|--:|--:|--:|--:|--:|
+| 1% | 0.568 | 0.532 | 0.537 | 0.575 | 0.569 | 0.583 | **0.602** |
+| 5% | 0.774 | 0.742 | 0.738 | 0.781 | 0.760 | 0.759 | **0.838** |
+| 10% | 0.830 | 0.798 | 0.800 | 0.811 | 0.816 | 0.824 | **0.861** |
+| **Overall** | 0.724 | 0.691 | 0.691 | 0.722 | 0.715 | 0.722 | **0.767** |
+
+This one matters for interpreting the first table. HADA leads in 18 of the 21 dataset × budget
+combinations here too, so the downstream gain comes from more reliable objectness and box placement
+rather than from happening to assign better category labels. The substantive exception is
+Construction-PPE at 1%, where nested and heavily overlapping objects are hard to validate and
+suppress.
+
+### 3 · Partial human correction pays for itself
 
 Correcting a random 10% or 20% of each round's pseudo-labeled images, under the 10% label
 budget. Values are the seven-dataset mean, with the relative change versus the AI-only pipeline:
@@ -299,7 +347,7 @@ At the 20% ratio every one of the 21 dataset × metric changes is positive. The 
 where the AI-only pipeline is weakest — Construction-PPE gains **+14.3%** mAP@50:95 from
 correcting one image in ten, and HomeObjects-3K **+17.8%** mAP@50 at 20%.
 
-### 3 · Annotation time
+### 4 · Annotation time
 
 <p align="center"><img src="docs/figures/results-time-saved.png" alt="Annotation time saved versus fully manual labeling" width="92%"></p>
 
@@ -319,7 +367,7 @@ review is what the remaining budget buys. Excluding machine time, active human t
 Even the costliest collaborative setting saves 5,363 minutes — about **89 hours** of human
 annotation — across the benchmark suite.
 
-### 4 · The correction burden shrinks as the models adapt
+### 5 · The correction burden shrinks as the models adapt
 
 <p align="center"><img src="docs/figures/results-burden-rounds.png" alt="Change in correction time from round 1 to round 3" width="85%"></p>
 
@@ -352,7 +400,7 @@ pglabel/          the annotation application — no torch, no web framework
   static/           the single-page UI (index.html + css/ + js/)
 
 pgcount/          count-guided acceptance: seed density → operating point → selection
-pseudoguard/      the HADA algorithm library: detector + validator wrappers, the crop rule
+hada/      the HADA algorithm library: detector + validator wrappers, the crop rule
 tools/            training entry points, run by the SEPARATE torch interpreter
 packaging/        Windows executable, installer, portable release, build audit
 tests/            224 tests — standard library + Pillow, no test dependencies
@@ -361,7 +409,7 @@ demo/             the sample dataset baked into the installer (read-only once pa
 docs/figures/     the figures used above
 ```
 
-The layering is deliberate: the `pseudoguard` package implements HADA proposal generation and scoring, while `pgcount` decides
+The layering is deliberate: the `hada` package implements HADA proposal generation and scoring, while `pgcount` decides
 which are accepted, `pglabel` is the human's side of it. Acceptance policy can be changed,
 compared or ablated **without touching a model** — which is what makes "same AI, different
 collaboration" measurable rather than rhetorical.
@@ -418,7 +466,7 @@ packaging\build.bat                       # or: py -3 packaging\build.py
 py -3 packaging\build.py --installer      # also compile the Inno Setup installer
 
 # B. a portable release, buildable anywhere
-python packaging/make_portable_zip.py     # -> pseudo-guard-studio.zip
+python packaging/make_portable_zip.py     # -> hada-studio.zip
 ```
 
 Route B downloads Python's official Windows embeddable runtime and a matching Pillow wheel the
@@ -457,7 +505,7 @@ python -m unittest discover -s tests -t tests -v
 | `test_geometry.py` | overlap, NMS, containment-aware de-duplication |
 | `test_methods.py` | the acceptance registry and the seed-derived decisions |
 | `test_noise_rule.py` | rule validation and the deviated-box preview geometry |
-| `test_pseudoguard.py` | config validation, CPU fallback, negative-crop geometry |
+| `test_hada.py` | config validation, CPU fallback, negative-crop geometry |
 | `test_pgcount.py` | seed density, operating points, crops, candidate sources |
 | `test_windows.py` | path traversal, console code pages, read-only deletes, .cmd/.vbs encoding |
 | `test_labelio.py` | the YOLO label format, clipping, BOM, line endings |
@@ -471,8 +519,12 @@ Tests that need torch skip themselves when it is not installed.
 
 ## Citation
 
-If you use this software, please cite the accompanying paper. Until it is published, cite this
-repository.
+This repository is the software implementation, **HADA Studio**, of the **HADA** framework:
+
+> *HADA: A Human–AI Collaborative Framework for Object-Detection Data Engineering to Enhance Data
+> Quality and Reduce Human Effort.* Under review.
+
+Until the paper is published, cite this repository.
 
 ## License
 

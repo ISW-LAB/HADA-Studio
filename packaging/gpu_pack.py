@@ -35,7 +35,7 @@ CUDA_INDEX = {
     "cpu": "https://download.pytorch.org/whl/cpu",
 }
 # What the trainer needs beyond torch: the detector framework, plus the handful of helpers
-# `pseudoguard` and `tools/` import directly. Kept in step with requirements-train.txt.
+# `hada` and `tools/` import directly. Kept in step with requirements-train.txt.
 EXTRA_PACKAGES = ["ultralytics", "opencv-python-headless", "pyyaml", "tqdm", "pillow",
                   "numpy", "scikit-learn"]
 MIN_PY, MAX_PY = (3, 9), (3, 12)                 # the range with torch wheels for every CUDA build

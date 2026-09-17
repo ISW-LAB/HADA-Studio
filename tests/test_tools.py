@@ -45,7 +45,7 @@ class TestCommonHelpers(unittest.TestCase):
 
     def test_repo_root_is_importable_for_the_library(self):
         root = common.repo_root()
-        self.assertTrue((root / "pseudoguard" / "__init__.py").exists())
+        self.assertTrue((root / "hada" / "__init__.py").exists())
         self.assertTrue((root / "pgcount" / "__init__.py").exists())
 
     def test_read_boxes_parses_yolo_rows(self):
@@ -115,7 +115,7 @@ class TestCommonHelpers(unittest.TestCase):
         self.assertAlmostEqual(cfg.deviation_shift, 0.80)
 
     def test_resolve_device_never_returns_an_absent_gpu(self):
-        from pseudoguard import device
+        from hada import device
         resolved = common.resolve_device("cuda:0")
         self.assertEqual(resolved.startswith("cuda"), device.cuda_available())
 

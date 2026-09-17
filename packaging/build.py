@@ -158,7 +158,7 @@ def main(argv=None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--installer", action="store_true", help="also compile the Inno Setup installer")
     ap.add_argument("--no-training", action="store_true",
-                    help="label-only build: omit tools/ and pseudoguard/ (no Train button)")
+                    help="label-only build: omit tools/ and hada/ (no Train button)")
     ap.add_argument("--no-demo", action="store_true", help="omit the bundled sample images")
     ap.add_argument("--windowed", action="store_true", help="build without a console window")
     ap.add_argument("--clean", action="store_true", help="delete previous build artefacts first")
@@ -185,8 +185,8 @@ def main(argv=None) -> int:
     write_version_info()
 
     with_training = not args.no_training
-    if with_training and not (ROOT / "pseudoguard" / "__init__.py").exists():
-        say("WARNING: pseudoguard/ is missing — building label-only (the Train button is hidden).")
+    if with_training and not (ROOT / "hada" / "__init__.py").exists():
+        say("WARNING: hada/ is missing — building label-only (the Train button is hidden).")
         with_training = False
 
     env = dict(os.environ)

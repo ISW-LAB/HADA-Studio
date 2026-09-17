@@ -19,7 +19,7 @@ over the built-in default — so a lab machine can point one install at a shared
     PGLABEL_DATA_DIR       user data root (workspace, settings, logs)
     PGLABEL_WORKSPACE_DIR  label workspace only
     PGLABEL_DATASETS_DIR   folder scanned for the start-screen dataset presets
-    PGLABEL_RESEARCH_DIR   the algorithm library the Train button imports (``pseudoguard``)
+    PGLABEL_RESEARCH_DIR   the algorithm library the Train button imports (``hada``)
     PGLABEL_TRAIN_PYTHON   interpreter that has torch + ultralytics (the "training pack")
 """
 
@@ -33,7 +33,7 @@ from typing import Optional
 
 FROZEN = bool(getattr(sys, "frozen", False))
 APP_NAME = "PG-Label"
-APP_PUBLISHER = "Pseudo-Guard Studio"
+APP_PUBLISHER = "HADA Studio"
 # Single source of truth for the version: the .exe resource, the installer and the About line
 # all read it from here (build.py generates version_info.txt from this string).
 APP_VERSION = "1.0.0"
@@ -43,7 +43,7 @@ _SETTINGS_CACHE: Optional[dict] = None
 
 # --------------------------------------------------------------------------- roots
 def bundle_root() -> Path:
-    r"""Read-only payload root: holds pglabel/, pgcount/, pseudoguard/, tools/, demo/.
+    r"""Read-only payload root: holds pglabel/, pgcount/, hada/, tools/, demo/.
 
     Frozen: PyInstaller's extraction dir (``sys._MEIPASS``) — ``_internal\`` for a onedir build.
     Source: the repository root (the folder that contains the ``pglabel`` package).
@@ -211,7 +211,7 @@ def datasets_root() -> Optional[Path]:
 
 
 def research_root() -> Optional[Path]:
-    """Root that must be importable by the TRAINING interpreter for ``import pseudoguard``.
+    """Root that must be importable by the TRAINING interpreter for ``import hada``.
 
     In this repository the algorithm library ships in-tree, so this is normally the bundle root
     itself. The env/settings override stays supported for the one case it exists to serve:
@@ -221,7 +221,7 @@ def research_root() -> Optional[Path]:
     if p is not None:
         return p
     for cand in (bundle_root(), install_root()):
-        if (cand / "pseudoguard" / "__init__.py").exists():
+        if (cand / "hada" / "__init__.py").exists():
             return cand.resolve()
     return None
 

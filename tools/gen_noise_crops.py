@@ -87,7 +87,7 @@ def generate(args, manifest_out: dict) -> dict:
     from PIL import Image
 
     common.bootstrap_path()
-    from pseudoguard.data.noise_generator import NoiseGenerator
+    from hada.data.noise_generator import NoiseGenerator
 
     random.seed(args.seed)
     np.random.seed(args.seed)

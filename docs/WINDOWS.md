@@ -50,7 +50,7 @@ annotators are not administrators.
 ## B. Portable release (from any OS)
 
 ```bash
-python packaging/make_portable_zip.py                 # -> pseudo-guard-studio.zip
+python packaging/make_portable_zip.py                 # -> hada-studio.zip
 python packaging/make_portable_zip.py --no-demo       # smaller
 python packaging/make_portable_zip.py --keep-tree     # leave the staged tree to inspect
 ```
@@ -100,7 +100,7 @@ is what lets the manual checklist below stay short.
 | Symlinks need developer mode or admin | staging a dataset for training | `symlink_to` with a copy fallback |
 | A frozen bundle's library path leaks into children | the trainer loads the app's Python/SSL/JPEG libraries | `<VAR>_ORIG` is restored and `_MEIPASS*` stripped before spawning |
 
-The training interpreter can only import `pseudoguard`, `pgcount` and `tools` — the packages the
+The training interpreter can only import `hada`, `pgcount` and `tools` — the packages the
 spec ships beside the executable. `verify_build.py` fails the build if anything under `tools/`
 reaches outside that set, because such an import works from a checkout and breaks in every
 packaged install.

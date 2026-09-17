@@ -14,8 +14,8 @@ import torch
 import yaml
 from abc import ABC, abstractmethod
 
-from pseudoguard.data.det_loader import YoloDetDataset
-from pseudoguard.device import resolve as resolve_device
+from hada.data.det_loader import YoloDetDataset
+from hada.device import resolve as resolve_device
 
 
 class DetectionModelBase(ABC):

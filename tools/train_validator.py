@@ -47,10 +47,10 @@ def main(argv=None) -> int:
     common.bootstrap_path()
     args.device = common.resolve_device(args.device)
 
-    from pseudoguard.data.classification_dataset import create_train_val_split_from_folder
-    from pseudoguard.data.det_loader import DetDatasetSpec, build_dataset
-    from pseudoguard.data.noise_generator import NoiseGenerator
-    from pseudoguard.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
+    from hada.data.classification_dataset import create_train_val_split_from_folder
+    from hada.data.det_loader import DetDatasetSpec, build_dataset
+    from hada.data.noise_generator import NoiseGenerator
+    from hada.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
 
     seed, scope_note = common.seed_images(args.images, args.labels, args.train_scope)
     if not seed:

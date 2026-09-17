@@ -153,7 +153,7 @@ def train_env_vars() -> dict:
 
     It runs under a DIFFERENT interpreter and, in a packaged install, from inside the app
     bundle — so the roots are named explicitly instead of being inferred from the script's
-    location. ``PGLABEL_ROOT`` is what the tools put on ``sys.path`` to import ``pseudoguard``
+    location. ``PGLABEL_ROOT`` is what the tools put on ``sys.path`` to import ``hada``
     and ``pgcount``.
     """
     env = dict(os.environ)
@@ -378,7 +378,7 @@ def train_gated(params: dict, log: list, owner: str):
     manifest_path = train_dir / "crops_manifest.json"
 
     cmd_a, overlay, report, how = build_train_cmd(params, stage="detector")
-    log.append(f"$ [1/3] training the detector (Pseudo-Guard) via {how} "
+    log.append(f"$ [1/3] training the detector (HADA) via {how} "
                f"(scope={params.get('scope', 'human')}) …")
     if run_stream(cmd_a, log) != 0:
         return False, read_json(report)
@@ -474,7 +474,7 @@ def start_cycle(params: dict):
         return rejected
 
     iters = max(1, min(10, int(params.get("iterations", 3))))
-    method = params.get("method", "pseudoguard")
+    method = params.get("method", "hada")
     thr, score = params.get("thr"), params.get("score", "p_good")
     include_ai = bool(params.get("include_ai", True))
     # Fold-back quality gate: when folding AI labels into TRAINING, reuse only the top-p_good
@@ -485,9 +485,9 @@ def start_cycle(params: dict):
     except (TypeError, ValueError):
         fold_gate = None
     # A self-training loop MUST bound per-image acceptance or pseudo-labels self-amplify each
-    # round (box explosion). Pseudo-Guard is count-guided, which supplies that cap; manual mode
+    # round (box explosion). HADA is count-guided, which supplies that cap; manual mode
     # relies on the user's threshold.
-    count_guided = (method == "pseudoguard")
+    count_guided = (method == "hada")
     acceptance = ("count-guided (bounded per image — stable)" if count_guided else
                   (f"manual {score} ≥ {thr}" if method == "manual" else method))
     state.CYCLE.update(state="running", started_at=time.time(), total=iters, current=0,

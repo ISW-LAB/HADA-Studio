@@ -6,7 +6,7 @@ threshold or a per-image top-K — that "Automate Label" then applies to the mod
 candidates. Acceptance is therefore matched to how crowded this dataset actually is,
 instead of to a threshold guessed once and reused everywhere.
 
-The separation of concerns this package exists to hold: ``pseudoguard`` produces candidates
+The separation of concerns this package exists to hold: ``hada`` produces candidates
 and scores them; ``pgcount`` decides which candidates are ACCEPTED. Nothing here trains or
 mutates a model, so the acceptance policy can be changed, compared or ablated without
 touching the models — which is what makes "same AI, different collaboration" measurable.

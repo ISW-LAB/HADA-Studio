@@ -45,7 +45,7 @@ class TestValidation(unittest.TestCase):
         self.assertNotIn("nonsense", noise_rule.validate_noise_config({"nonsense": 1}))
 
     def test_shift_band_matches_the_library(self):
-        from pseudoguard.config import NoiseGenerationConfig
+        from hada.config import NoiseGenerationConfig
         lo, hi = noise_rule.shift_band(0.8)
         self.assertEqual((round(lo, 6), round(hi, 6)),
                          tuple(round(v, 6) for v in NoiseGenerationConfig().deviation_shift_range))

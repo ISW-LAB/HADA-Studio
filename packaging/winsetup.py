@@ -33,7 +33,7 @@ from pathlib import Path
 
 IS_WINDOWS = os.name == "nt"
 APP_NAME = "PG-Label"
-DISPLAY_NAME = "PG-Label (Pseudo-Guard Studio)"
+DISPLAY_NAME = "PG-Label (HADA Studio)"
 REG_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\PG-Label"
 
 HERE = Path(__file__).resolve().parent          # …\packaging, inside the unzipped release
@@ -184,7 +184,7 @@ def register_uninstall(dest: Path, version: str) -> bool:
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, REG_KEY) as k:
             size_kb = int(sum(f.stat().st_size for f in dest.rglob("*") if f.is_file()) / 1024)
             for name, value in (("DisplayName", DISPLAY_NAME), ("DisplayVersion", version),
-                                ("Publisher", "Pseudo-Guard Studio"),
+                                ("Publisher", "HADA Studio"),
                                 ("InstallLocation", str(dest)),
                                 ("DisplayIcon", str(dest / "assets" / "pglabel.ico")),
                                 ("UninstallString", f'"{dest / "Uninstall PG-Label.exe"}"')):
@@ -243,7 +243,7 @@ def install(args) -> int:
     say("=" * 68)
     if not (src / "runtime").is_dir() and IS_WINDOWS:
         say(f"  ! this does not look like the unzipped release folder: {src}")
-        say("    Unzip pseudo-guard-studio.zip first, then run the installer from inside it.")
+        say("    Unzip hada-studio.zip first, then run the installer from inside it.")
         return 2
     if src == dest:
         say(f"  already installed in {dest}")

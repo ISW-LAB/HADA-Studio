@@ -1,4 +1,4 @@
-"""PG-Label — the annotation application of Pseudo-Guard Studio.
+"""PG-Label — the annotation application of HADA Studio.
 
 A local web app: the server is Python's own ``http.server``, the UI is one page served from
 ``pglabel/static``. Nothing here imports torch — training runs as a subprocess under a separate

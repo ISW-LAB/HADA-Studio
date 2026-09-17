@@ -30,7 +30,7 @@ from pathlib import Path
 
 from . import cli, console, dataset_setup, fsutil, paths, state, training
 
-BANNER = "Pseudo-Guard Studio (PG-Label) — Collaborative Auto-Labeling"
+BANNER = "HADA Studio (PG-Label) — Collaborative Auto-Labeling"
 LOG_ROTATE_BYTES = 2_000_000
 PORT_SCAN_RANGE = 40
 

@@ -11,7 +11,7 @@ The preview matters more than it looks: it is what makes the deviation-shift sli
 Moving the slider redraws the boxes instantly, in the app's own process, with no torch and no
 crop generation — so the human sees what "0.4" versus "1.2" means before committing to a run
 that takes minutes. The geometry here is deliberately the same as the generator's refined rule
-(``pseudoguard.data.noise_generator``); if one changes, the other must.
+(``hada.data.noise_generator``); if one changes, the other must.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from . import state
 from .geometry import iou_xyxy
 from .labelio import image_size, load_yolo
 
-# UI-exposed rule knobs and their defaults. These mirror ``pseudoguard.config``; the app ships
+# UI-exposed rule knobs and their defaults. These mirror ``hada.config``; the app ships
 # the REFINED rule with a 0.80 centre shift, which is the setting the paper reports.
 NOISE_DEFAULTS = {
     "negative_rule": "refined",
@@ -82,7 +82,7 @@ def validate_noise_config(cfg: dict) -> dict:
 
 
 def shift_band(shift: float) -> tuple[float, float]:
-    """The sampling band a scalar centre shift expands into (matches pseudoguard.config)."""
+    """The sampling band a scalar centre shift expands into (matches hada.config)."""
     return max(0.05, float(shift) - SHIFT_BAND), float(shift) + SHIFT_BAND
 
 

@@ -2,7 +2,7 @@
 
 These are the SE-headline outcomes (design §6.1, RQ3/RQ4). Implemented in pure
 python so the scaffold runs standalone; for the final paper, swap the matcher for
-``pseudoguard/utils/box_ops.py`` (compute_batch_pseudo_accuracy)
+``hada/utils/box_ops.py`` (compute_batch_pseudo_accuracy)
 so human/detector/gate outputs sit on one identical scale (design §6.1 note).
 
 Box format everywhere: (x1, y1, x2, y2) absolute pixels.

@@ -140,7 +140,7 @@ class TestWithOverlay(ServerCase):
 
     def test_automate_one_image_returns_scored_boxes(self):
         target = self.names[-1]
-        code, out = self.post(f"/api/automate/{target}", {"method": "pseudoguard"})
+        code, out = self.post(f"/api/automate/{target}", {"method": "hada"})
         self.assertEqual(code, 200)
         self.assertTrue(out["boxes"])
         for b in out["boxes"]:
@@ -148,7 +148,7 @@ class TestWithOverlay(ServerCase):
             self.assertIn(b["band"], ("green", "amber", "red"))
 
     def test_automate_all_writes_labels_for_every_non_seed_image(self):
-        code, out = self.post("/api/automate_all", {"method": "pseudoguard"})
+        code, out = self.post("/api/automate_all", {"method": "hada"})
         self.assertEqual(code, 200)
         self.assertEqual(out["auto_labeled"], len(self.names) - self.seed_images)
         _code, st = self.get("/api/status")
@@ -158,8 +158,8 @@ class TestWithOverlay(ServerCase):
     def test_this_image_agrees_with_auto_label_all(self):
         # The whole point of fitting one global operating point: the two buttons must agree.
         target = self.names[-1]
-        _code, single = self.post(f"/api/automate/{target}", {"method": "pseudoguard"})
-        self.post("/api/automate_all", {"method": "pseudoguard"})
+        _code, single = self.post(f"/api/automate/{target}", {"method": "hada"})
+        self.post("/api/automate_all", {"method": "hada"})
         _code, saved = self.get(f"/api/labels/{target}")
         self.assertEqual(len(single["boxes"]), len(saved["boxes"]))
 

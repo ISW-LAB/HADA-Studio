@@ -19,7 +19,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from tqdm import tqdm
 
-from pseudoguard.device import resolve as resolve_device
+from hada.device import resolve as resolve_device
 
 
 class ClassificationModelBase(ABC):

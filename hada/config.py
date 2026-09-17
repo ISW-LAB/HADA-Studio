@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Configuration dataclasses for the Pseudo-Guard algorithm library.
+"""Configuration dataclasses for the HADA algorithm library.
 
 Three settings groups, one per stage of the pipeline:
 
@@ -8,7 +8,7 @@ Three settings groups, one per stage of the pipeline:
     NoiseGenerationConfig     the RULE that fabricates the validator's training crops
 
 Only ``NoiseGenerationConfig`` is consumed inside this package (by
-``pseudoguard.data.noise_generator``); the two model configs document the defaults the
+``hada.data.noise_generator``); the two model configs document the defaults the
 training tools pass on the command line, so a reader has one place to look up "what does
 the paper actually run with".
 """
@@ -34,7 +34,7 @@ class DetectionModelConfig:
     patience: int = 20              # early stopping
     lr: float = 0.001
     weight_decay: float = 0.0005
-    device: str = "auto"            # auto → CUDA when present, else CPU (pseudoguard.device)
+    device: str = "auto"            # auto → CUDA when present, else CPU (hada.device)
 
     # Two different thresholds on purpose: proposals are collected broadly and filtered by the
     # validator, so the collection threshold is far lower than a detector's own operating point.

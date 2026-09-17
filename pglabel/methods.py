@@ -2,7 +2,7 @@
 """Acceptance methodologies, and the two per-dataset decisions derived from the human seed.
 
 A "methodology" is a policy for turning the model's scored candidates into accepted boxes.
-The proposed one is Pseudo-Guard with COUNT-GUIDED acceptance: the number of boxes accepted per
+The proposed one is HADA with COUNT-GUIDED acceptance: the number of boxes accepted per
 image comes from the box counts in the images the human has already labeled, instead of from a
 flat threshold picked once. The comparison baselines are plain detector-confidence cuts over the
 same candidate pool, which is what makes them a fair comparison — only the acceptance rule
@@ -25,14 +25,14 @@ from . import state
 from .geometry import CONTAINMENT_THRESHOLD, containment
 from .labelio import load_yolo
 
-GROUP_PROPOSED = "Proposed · Pseudo-Guard"
+GROUP_PROPOSED = "Proposed · HADA"
 GROUP_COMPARISON = "Comparison baselines"
 
 # ``seed: True`` marks a methodology that NEEDS the human count prior; with no usable seed it
 # falls back to auto-adaptive (Otsu) and the UI says so rather than silently changing behaviour.
 METHODS = [
-    # -- Proposed: Pseudo-Guard + count-guided acceptance (adaptive per-image K from the seed) --
-    {"id": "pseudoguard", "group": GROUP_PROPOSED, "label": "Pseudo-Guard (proposed)",
+    # -- Proposed: HADA + count-guided acceptance (adaptive per-image K from the seed) --
+    {"id": "hada", "group": GROUP_PROPOSED, "label": "HADA (proposed)",
      "backend": "validator", "op": "adaptive", "thr": 0.5, "seed": True},
     {"id": "manual", "group": GROUP_PROPOSED, "label": "🎚 Manual threshold (confidence slider)",
      "backend": "validator", "op": "manual", "seed": False},
@@ -47,7 +47,7 @@ METHODS = [
      "backend": "confidence", "op": "fixed", "thr": 0.90, "seed": False},
 ]
 METHOD_MAP = {m["id"]: m for m in METHODS}
-DEFAULT_METHOD = "pseudoguard"
+DEFAULT_METHOD = "hada"
 
 # Regimes in which removing nested boxes destroys real objects rather than duplicates:
 #   • the seed shows genuine nesting (a helmet inside a person), or

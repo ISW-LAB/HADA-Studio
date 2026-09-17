@@ -14,7 +14,7 @@ the acceptance policy independent of how the candidates were produced.
                          byte-identical candidates on every machine, so a study session or a
                          packaged install can run the whole acceptance path without a model.
 
-The application always talks to one of these two, never to ``pseudoguard`` directly.
+The application always talks to one of these two, never to ``hada`` directly.
 """
 
 from __future__ import annotations
@@ -65,7 +65,7 @@ class FrozenBackend:
         self.val_model_type = val_model_type
         self.crop_img_size = crop_img_size
         self.num_classes = num_classes
-        from pseudoguard.device import resolve as _resolve
+        from hada.device import resolve as _resolve
         self.device = _resolve(device)
         self._detector = None
         self._validator = None
@@ -81,8 +81,8 @@ class FrozenBackend:
         with different settings still loads correctly.
         """
         import torch
-        from pseudoguard.models.detection.yolov8_wrapper import YOLOWrapper
-        from pseudoguard.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
+        from hada.models.detection.yolov8_wrapper import YOLOWrapper
+        from hada.models.classification.densenet_wrapper import TorchvisionClassifierWrapper
 
         # --- detector (YOLO): construct then load trained weights (wrapper pattern) ---
         det = YOLOWrapper(

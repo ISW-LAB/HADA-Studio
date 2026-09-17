@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence, Tuple
 
-# Case-insensitive; kept identical to pglabel/labelio.py and pseudoguard/data/det_loader.py so
+# Case-insensitive; kept identical to pglabel/labelio.py and hada/data/det_loader.py so
 # the app, the tools and the training loader all see exactly the same set of images.
 IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp")
 
@@ -40,7 +40,7 @@ def weight_search_paths() -> list:
 
 
 def repo_root() -> Path:
-    """The folder that must be importable for ``import pseudoguard`` / ``import pgcount``.
+    """The folder that must be importable for ``import hada`` / ``import pgcount``.
 
     The app passes ``PGLABEL_ROOT`` explicitly, because in a packaged install the tools live
     inside the bundle and "one folder up" is no longer the checkout.
@@ -130,7 +130,7 @@ def clear_tree(path) -> None:
 
     Deliberately NOT imported from ``pglabel.fsutil``, even though that module does the same
     thing: this file runs under the TRAINING interpreter, whose import roots are only
-    ``pseudoguard``, ``pgcount`` and ``tools``. Reaching into the app package works from a
+    ``hada``, ``pgcount`` and ``tools``. Reaching into the app package works from a
     checkout and fails in every packaged install — the exact bug class this separation exists
     to prevent.
     """
@@ -326,7 +326,7 @@ def build_noise_config(overrides):
     """
     import dataclasses
     bootstrap_path()
-    from pseudoguard.config import NoiseGenerationConfig
+    from hada.config import NoiseGenerationConfig
 
     if isinstance(overrides, (str, Path)):
         overrides = load_overrides(overrides)
@@ -344,5 +344,5 @@ def build_noise_config(overrides):
 def resolve_device(preferred: Optional[str]) -> str:
     """``auto`` / an absent GPU → cpu. Thin re-export so tools need one import, not two."""
     bootstrap_path()
-    from pseudoguard.device import resolve
+    from hada.device import resolve
     return resolve(preferred, log=log)

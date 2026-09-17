@@ -80,8 +80,8 @@ class TestCropMemoryCeiling(unittest.TestCase):
         import resource
         import torch
         from PIL import Image
-        from pseudoguard.config import NoiseGenerationConfig
-        from pseudoguard.data.noise_generator import NoiseGenerator
+        from hada.config import NoiseGenerationConfig
+        from hada.data.noise_generator import NoiseGenerator
         from tools.common import CropWriter
 
         class Fake:
@@ -125,8 +125,8 @@ class TestCropMemoryCeiling(unittest.TestCase):
     def test_labels_still_describe_what_was_produced(self):
         import torch
         from PIL import Image
-        from pseudoguard.config import NoiseGenerationConfig
-        from pseudoguard.data.noise_generator import NoiseGenerator
+        from hada.config import NoiseGenerationConfig
+        from hada.data.noise_generator import NoiseGenerator
         from tools.common import CropWriter
 
         class Fake:

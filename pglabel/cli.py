@@ -21,7 +21,7 @@ from . import dataset_setup, paths, state
 from .api import Handler
 from .backend import AIBackend
 
-DEFAULT_TRAIN_ENV = "pseudoguard"      # conda env assumed to hold torch + ultralytics
+DEFAULT_TRAIN_ENV = "hada"      # conda env assumed to hold torch + ultralytics
 DEFAULT_DEMO_SEED_IMAGES = 5           # how many demo images get pre-seeded from ground truth
 
 
