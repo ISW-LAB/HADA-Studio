@@ -58,8 +58,11 @@
   header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;background:linear-gradient(180deg,#191d27,#141821);
          border-bottom:1px solid var(--line);position:relative;z-index:5}
   .brand{display:flex;align-items:center;gap:10px;min-width:0}
-  .brand .logo{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
-       background:linear-gradient(135deg,#6366f1,#22c55e);font-size:16px;box-shadow:var(--sh)}
+  /* The lab mark is black line-art on transparency, so it needs a light plate to sit on: the
+     header is dark by default, and the mark would otherwise disappear into it. The plate stays
+     white in the light theme too, which keeps the brand identical in both. */
+  .brand .logo{width:30px;height:30px;border-radius:8px;display:block;object-fit:contain;
+       background:#ffffff;padding:3px;box-shadow:var(--sh)}
   .brand b{font-size:14px;letter-spacing:.2px}
   .brand span{display:block;color:var(--mut);font-size:10.5px;letter-spacing:.3px}
   .nav{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);

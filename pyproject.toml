@@ -25,7 +25,7 @@ packages = ["pglabel", "pgcount", "pgcount.adapters", "hada", "hada.data",
             "hada.models.classification", "hada.utils", "tools"]
 
 [tool.setuptools.package-data]
-pglabel = ["static/*.html", "static/css/*.css", "static/js/*.js"]
+pglabel = ["static/*.html", "static/css/*.css", "static/js/*.js", "static/img/*.png"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

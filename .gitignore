@@ -16,6 +16,15 @@ runs/
 .pgtrain/
 
 # App state — written by the app beside the user's labels; never source
+# The bundled samples are a labeling TARGET: opening either one writes .txt beside the images
+# (dataset_setup.default_labels_dir puts labels next to the images in a checkout), so simply
+# running the app would otherwise leave the tree dirty. The labels are user data, not source.
+demo/images/*.txt
+data/labels/*.txt
+!data/labels/1 (10).txt
+!data/labels/1 (100).txt
+!data/labels/1 (101).txt
+!data/labels/1 (104).txt
 settings.json
 logs/
 .pglabel-packaged
